@@ -811,7 +811,7 @@ static int zswap_frontswap_store(unsigned type, pgoff_t offset,
 	}
 
 	/* store */
-	handle = zs_malloc(tree->pool, dlen);
+	handle = zs_malloc(tree->pool, dlen, GFP_NOWAIT);
 	if (!handle) {
 		ret = -ENOMEM;
 		goto freepage;
@@ -1034,7 +1034,7 @@ static void zswap_frontswap_init(unsigned type)
 	tree = kzalloc(sizeof(struct zswap_tree), GFP_NOWAIT);
 	if (!tree)
 		goto err;
-	tree->pool = zs_create_pool("zwap", GFP_NOWAIT);
+	tree->pool = zs_create_pool("zswap");
 	if (!tree->pool)
 		goto freetree;
 	tree->rbroot = RB_ROOT;
