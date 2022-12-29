@@ -29,6 +29,11 @@ struct shrink_control {
  * querying the cache size, so a fastpath for that case is appropriate.
  */
 struct shrinker {
+	unsigned long (*count_objects)(struct shrinker *,
+				       struct shrink_control *sc);
+	unsigned long (*scan_objects)(struct shrinker *,
+				      struct shrink_control *sc);
+					  	
 	int (*shrink)(struct shrinker *, struct shrink_control *sc);
 	int seeks;	/* seeks to recreate an obj */
 	long batch;	/* reclaim batch size, 0 = default */

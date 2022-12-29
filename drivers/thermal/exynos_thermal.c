@@ -273,42 +273,6 @@ static int exynos_set_mode(struct thermal_zone_device *thermal,
 	return 0;
 }
 
-/*
- * This function may be called from interrupt based temperature sensor
- * when threshold is changed.
- */
-static void exynos_report_trigger(void)
-{
-	unsigned int i;
-	char data[10];
-	char *envp[] = { data, NULL };
-
-	if (!th_zone || !th_zone->therm_dev)
-		return;
-
-	thermal_zone_device_update(th_zone->therm_dev);
-
-	mutex_lock(&th_zone->therm_dev->lock);
-	/* Find the level for which trip happened */
-	for (i = 0; i < th_zone->sensor_conf->trip_data.trip_count; i++) {
-		if (th_zone->therm_dev->last_temperature <
-			th_zone->sensor_conf->trip_data.trip_val[i] * MCELSIUS)
-			break;
-	}
-
-	pr_info("[TMU-IRQ] IRQ mode=%d\n",i);
-	if (th_zone->mode == THERMAL_DEVICE_ENABLED) {
-		if (i > 0)
-			th_zone->therm_dev->polling_delay = ACTIVE_INTERVAL;
-		else
-			th_zone->therm_dev->polling_delay = IDLE_INTERVAL;
-	}
-
-	snprintf(data, sizeof(data), "%u", i);
-	kobject_uevent_env(&th_zone->therm_dev->device.kobj, KOBJ_CHANGE, envp);
-	mutex_unlock(&th_zone->therm_dev->lock);
-}
-
 /* Get trip type callback functions for thermal zone */
 static int exynos_get_trip_type(struct thermal_zone_device *thermal, int trip,
 				 enum thermal_trip_type *type)
@@ -327,6 +291,42 @@ static int exynos_get_trip_type(struct thermal_zone_device *thermal, int trip,
 		return -EINVAL;
 	}
 	return 0;
+}
+
+/*
+ * This function may be called from interrupt based temperature sensor
+ * when threshold is changed.
+ */
+static void exynos_report_trigger(void)
+{
+	unsigned int i;
+	char data[10];
+	char *envp[] = { data, NULL };
+	enum thermal_trip_type type = 0;
+
+	if (!th_zone || !th_zone->therm_dev)
+		return;
+
+	thermal_zone_device_update(th_zone->therm_dev);
+
+	mutex_lock(&th_zone->therm_dev->lock);
+	/* Find the level for which trip happened */
+	for (i = 0; i < th_zone->sensor_conf->trip_data.trip_count; i++) {
+		if (th_zone->therm_dev->last_temperature <
+			th_zone->sensor_conf->trip_data.trip_val[i] * MCELSIUS)
+			break;
+	}
+
+	if (th_zone->mode == THERMAL_DEVICE_ENABLED) {
+		exynos_get_trip_type(th_zone->therm_dev, i, &type);
+		if (type == THERMAL_TRIP_ACTIVE)
+			th_zone->therm_dev->passive_delay = ACTIVE_INTERVAL;
+		else
+			th_zone->therm_dev->passive_delay = PASSIVE_INTERVAL;
+	}
+	mutex_unlock(&th_zone->therm_dev->lock);
+	snprintf(data, sizeof(data), "%u", i);
+	kobject_uevent_env(&th_zone->therm_dev->device.kobj, KOBJ_CHANGE, envp);
 }
 
 /* Get trip temperature callback functions for thermal zone */
