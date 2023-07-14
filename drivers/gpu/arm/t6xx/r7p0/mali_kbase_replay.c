@@ -11,6 +11,8 @@
  * from Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  *
+ * HazouPH: Updated for compatibility with libGLES_mali r15p0..10.6 userspace library
+ *
  */
 
 
@@ -792,9 +794,9 @@ static int kbasep_replay_parse_payload(struct kbase_context *kctx,
 	f_atom->core_req = payload->fragment_core_req | BASEP_JD_REQ_EVENT_NEVER;
 
 	/* Sanity check core requirements*/
-	if ((t_atom->core_req & BASEP_JD_REQ_ATOM_TYPE &
+	if ((t_atom->core_req & BASE_JD_REQ_ATOM_TYPE &
 			       ~BASE_JD_REQ_COHERENT_GROUP) != BASE_JD_REQ_T ||
-	    (f_atom->core_req & BASEP_JD_REQ_ATOM_TYPE &
+	    (f_atom->core_req & BASE_JD_REQ_ATOM_TYPE &
 			      ~BASE_JD_REQ_COHERENT_GROUP) != BASE_JD_REQ_FS ||
 	     t_atom->core_req & BASE_JD_REQ_EXTERNAL_RESOURCES ||
 	     f_atom->core_req & BASE_JD_REQ_EXTERNAL_RESOURCES) {

@@ -12,6 +12,8 @@
  * from Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  *
+ * HazouPH: Updated for compatibility with libGLES_mali r15p0..10.6 userspace library
+ *
  */
 
 
@@ -775,7 +777,7 @@ copy_failed:
 			if (sizeof(*sn) != args_size)
 				goto bad_size;
 
-			if (sn->sset.basep_sset.mem_handle & ~PAGE_MASK) {
+			if (sn->sset.basep_sset.mem_handle.basep.handle & ~PAGE_MASK) {
 				dev_warn(kbdev->dev, "kbase_dispatch case KBASE_FUNC_SYNC: sn->sset.basep_sset.mem_handle: passed parameter is invalid");
 				ukh->ret = MALI_ERROR_FUNCTION_FAILED;
 				break;
@@ -3340,7 +3342,7 @@ static void kbase_device_coherency_init(struct kbase_device *kbdev, u32 gpu_id)
 
 #endif /* CONFIG_OF */
 
-	kbdev->gpu_props.props.raw_props.coherency_features =
+	kbdev->gpu_props.props.raw_props.coherency_mode =
 		kbdev->system_coherency;
 }
 

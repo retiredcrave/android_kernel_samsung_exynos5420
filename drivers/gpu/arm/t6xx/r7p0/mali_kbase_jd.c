@@ -11,6 +11,8 @@
  * from Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  *
+ * HazouPH: Updated for compatibility with libGLES_mali r15p0..10.6 userspace library
+ *
  */
 
 
@@ -53,7 +55,7 @@
 /* Return whether katom will run on the GPU or not. Currently only soft jobs and
  * dependency-only atoms do not run on the GPU */
 #define IS_GPU_ATOM(katom) (!((katom->core_req & BASE_JD_REQ_SOFT_JOB) ||  \
-			((katom->core_req & BASEP_JD_REQ_ATOM_TYPE) ==    \
+			((katom->core_req & BASE_JD_REQ_ATOM_TYPE) ==    \
 							BASE_JD_REQ_DEP)))
 /*
  * This is the kernel side of the API. Only entry points are:
@@ -88,13 +90,13 @@ static int jd_run_atom(struct kbase_jd_atom *katom)
 
 	KBASE_DEBUG_ASSERT(katom->status != KBASE_JD_ATOM_STATE_UNUSED);
 
-	if ((katom->core_req & BASEP_JD_REQ_ATOM_TYPE) == BASE_JD_REQ_DEP) {
+	if ((katom->core_req & BASE_JD_REQ_ATOM_TYPE) == BASE_JD_REQ_DEP) {
 		/* Dependency only atom */
 		katom->status = KBASE_JD_ATOM_STATE_COMPLETED;
 		return 0;
 	} else if (katom->core_req & BASE_JD_REQ_SOFT_JOB) {
 		/* Soft-job */
-		if ((katom->core_req & BASEP_JD_REQ_ATOM_TYPE)
+		if ((katom->core_req & BASE_JD_REQ_ATOM_TYPE)
 						  == BASE_JD_REQ_SOFT_REPLAY) {
 			if (!kbase_replay_process(katom))
 				katom->status = KBASE_JD_ATOM_STATE_COMPLETED;
@@ -693,7 +695,7 @@ static void jd_check_force_failure(struct kbase_jd_atom *katom)
 		    kbase_jd_katom_dep_atom(&kctx->jctx.atoms[i].dep[1]) == katom) {
 			struct kbase_jd_atom *dep_atom = &kctx->jctx.atoms[i];
 
-			if ((dep_atom->core_req & BASEP_JD_REQ_ATOM_TYPE) ==
+			if ((dep_atom->core_req & BASE_JD_REQ_ATOM_TYPE) ==
 						     BASE_JD_REQ_SOFT_REPLAY &&
 			    (dep_atom->core_req & kbdev->force_replay_core_req)
 					     == kbdev->force_replay_core_req) {
@@ -791,7 +793,7 @@ bool jd_done_nolock(struct kbase_jd_atom *katom,
 			} else {
 				node->event_code = katom->event_code;
 
-				if ((node->core_req & BASEP_JD_REQ_ATOM_TYPE)
+				if ((node->core_req & BASE_JD_REQ_ATOM_TYPE)
 						  == BASE_JD_REQ_SOFT_REPLAY) {
 					if (kbase_replay_process(node))
 						/* Don't complete this atom */
@@ -1030,7 +1032,7 @@ bool jd_submit_atom(struct kbase_context *kctx,
 					kbase_jd_atom_id(kctx, katom));
 			kbase_tlstream_tl_ret_atom_ctx(katom, kctx);
 #endif
-			if ((katom->core_req & BASEP_JD_REQ_ATOM_TYPE)
+			if ((katom->core_req & BASE_JD_REQ_ATOM_TYPE)
 					 == BASE_JD_REQ_SOFT_REPLAY) {
 				if (kbase_replay_process(katom)) {
 					ret = false;
@@ -1061,7 +1063,7 @@ bool jd_submit_atom(struct kbase_context *kctx,
 #endif
 
 	/* Reject atoms with job chain = NULL, as these cause issues with soft-stop */
-	if (!katom->jc && (katom->core_req & BASEP_JD_REQ_ATOM_TYPE) != BASE_JD_REQ_DEP) {
+	if (!katom->jc && (katom->core_req & BASE_JD_REQ_ATOM_TYPE) != BASE_JD_REQ_DEP) {
 		dev_warn(kctx->kbdev->dev, "Rejecting atom with jc = NULL");
 		katom->event_code = BASE_JD_EVENT_JOB_INVALID;
 		ret = jd_done_nolock(katom, NULL);
@@ -1134,7 +1136,7 @@ bool jd_submit_atom(struct kbase_context *kctx,
 	}
 #endif				/* CONFIG_KDS */
 
-	if ((katom->core_req & BASEP_JD_REQ_ATOM_TYPE)
+	if ((katom->core_req & BASE_JD_REQ_ATOM_TYPE)
 						  == BASE_JD_REQ_SOFT_REPLAY) {
 		if (kbase_replay_process(katom))
 			ret = false;
@@ -1151,7 +1153,7 @@ bool jd_submit_atom(struct kbase_context *kctx,
 		/* The job has not yet completed */
 		list_add_tail(&katom->dep_item[0], &kctx->waiting_soft_jobs);
 		ret = false;
-	} else if ((katom->core_req & BASEP_JD_REQ_ATOM_TYPE) != BASE_JD_REQ_DEP) {
+	} else if ((katom->core_req & BASE_JD_REQ_ATOM_TYPE) != BASE_JD_REQ_DEP) {
 		katom->status = KBASE_JD_ATOM_STATE_IN_JS;
 		ret = kbasep_js_add_job(kctx, katom);
 		/* If job was cancelled then resolve immediately */
