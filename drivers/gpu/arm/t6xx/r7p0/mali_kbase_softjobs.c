@@ -11,6 +11,8 @@
  * from Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  *
+ * HazouPH: Updated for compatibility with libGLES_mali r15p0..10.6 userspace library
+ *
  */
 
 
@@ -287,7 +289,7 @@ int kbase_process_soft_job(struct kbase_jd_atom *katom)
 {
 	unsigned long flags;
 
-	switch (katom->core_req & BASEP_JD_REQ_ATOM_TYPE) {
+	switch (katom->core_req & BASE_JD_REQ_ATOM_TYPE) {
 	case BASE_JD_REQ_SOFT_DUMP_CPU_GPU_TIME:
 		return kbase_dump_cpu_gpu_time(katom);
 #ifdef CONFIG_SYNC
@@ -334,7 +336,7 @@ void kbase_cancel_soft_job(struct kbase_jd_atom *katom)
 		return;
 	}
 
-	switch (katom->core_req & BASEP_JD_REQ_ATOM_TYPE) {
+	switch (katom->core_req & BASE_JD_REQ_ATOM_TYPE) {
 #ifdef CONFIG_SYNC
 	case BASE_JD_REQ_SOFT_FENCE_WAIT:
 		kbase_fence_cancel_wait(katom);
@@ -354,7 +356,7 @@ int kbase_prepare_soft_job(struct kbase_jd_atom *katom)
 {
 	unsigned long flags;
 
-	switch (katom->core_req & BASEP_JD_REQ_ATOM_TYPE) {
+	switch (katom->core_req & BASE_JD_REQ_ATOM_TYPE) {
 	case BASE_JD_REQ_SOFT_DUMP_CPU_GPU_TIME:
 		{
 			if (0 != (katom->jc & KBASE_CACHE_ALIGNMENT_MASK))
@@ -422,7 +424,7 @@ void kbase_finish_soft_job(struct kbase_jd_atom *katom)
 {
 	unsigned long flags;
 
-	switch (katom->core_req & BASEP_JD_REQ_ATOM_TYPE) {
+	switch (katom->core_req & BASE_JD_REQ_ATOM_TYPE) {
 	case BASE_JD_REQ_SOFT_DUMP_CPU_GPU_TIME:
 		/* Nothing to do */
 		break;
@@ -511,7 +513,7 @@ void kbase_resume_suspended_soft_jobs(struct kbase_device *kbdev)
 		} else {
 			/* The job has not completed */
 			KBASE_DEBUG_ASSERT((katom_iter->core_req &
-					BASEP_JD_REQ_ATOM_TYPE)
+					BASE_JD_REQ_ATOM_TYPE)
 					!= BASE_JD_REQ_SOFT_REPLAY);
 			list_add_tail(&katom_iter->dep_item[0],
 					&kctx->waiting_soft_jobs);

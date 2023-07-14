@@ -10,12 +10,14 @@
 # from Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 # Boston, MA  02110-1301, USA.
 #
+# HazouPH: Updated for compatibility with libGLES_mali r15p0..10.6 userspace library
 #
 
 
 
 # Driver version string which is returned to userspace via an ioctl
-MALI_RELEASE_NAME ?= "r7p0-03rel0"
+# HazouPH: Change to r15p0 to make LibGLES_mali r15p0..10.6 compatible with kernel driver version r7p0
+MALI_RELEASE_NAME ?= "r15p0-00rel0"
 
 # Paths required for build
 KBASE_PATH = $(src)
