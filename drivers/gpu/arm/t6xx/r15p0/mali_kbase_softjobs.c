@@ -1495,6 +1495,23 @@ void kbase_finish_soft_job(struct kbase_jd_atom *katom)
 		}
 		break;
 	case BASE_JD_REQ_SOFT_FENCE_WAIT:
+/* MALI_SEC_INTEGRATION */
+#ifdef MALI_SEC_FENCE_INTEGRATION
+		if (katom->fence) {
+			sync_fence_put(katom->fence);
+			spin_lock_irqsave(&katom->fence_lock, flags);
+			katom->fence = NULL;
+			spin_unlock_irqrestore(&katom->fence_lock, flags);
+		}
+
+		{
+			struct kbase_context *kctx = katom->kctx;
+			struct kbase_device *kbdev = kctx->kbdev;
+
+			if(kbdev->vendor_callbacks->fence_del_timer)
+				kbdev->vendor_callbacks->fence_del_timer(katom);
+		}
+#else
 		/* Release the reference to the fence object */
 		sync_fence_put(katom->fence);
 		/* MALI_SEC_INTEGRATION */
@@ -1502,6 +1519,7 @@ void kbase_finish_soft_job(struct kbase_jd_atom *katom)
 		katom->fence = NULL;
 		/* MALI_SEC_INTEGRATION */
 		spin_unlock_irqrestore(&katom->fence_lock, flags);
+#endif
 		break;
 #endif				/* CONFIG_SYNC */
 
