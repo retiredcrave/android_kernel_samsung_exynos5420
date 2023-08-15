@@ -235,4 +235,11 @@ config MALI_GPU_MMU_AARCH64
 
 	  If in doubt, say N.
 
+config MALI_SEC_LEGACY_SUPPORT
+	bool "Enable legacy project support"
+	depends on MALI_MIDGARD
+	default y
+	help
+	  Enable legacy project support.
+
 source "drivers/gpu/arm/t6xx/r15p0/platform/Kconfig"
