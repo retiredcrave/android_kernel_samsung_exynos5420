@@ -2191,9 +2191,6 @@ static int cpufreq_governor_dbs(struct cpufreq_policy *policy,
 
                         if (dbs_tuners_ins.sync_freq == 0)
                                 dbs_tuners_ins.sync_freq = policy->min;
-
-                        atomic_notifier_chain_register(&migration_notifier_head,
-                                        &dbs_migration_nb);
                 }
                 if (!cpu)
                         rc = input_register_handler(&dbs_input_handler);
@@ -2227,9 +2224,6 @@ static int cpufreq_governor_dbs(struct cpufreq_policy *policy,
                 if (!dbs_enable) {
                         sysfs_remove_group(cpufreq_global_kobject,
                                            &dbs_attr_group);
-                        atomic_notifier_chain_unregister(
-                                &migration_notifier_head,
-                                &dbs_migration_nb);
                 }
 
                 mutex_unlock(&dbs_mutex);
