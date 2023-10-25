@@ -292,8 +292,7 @@ static inline int valid_io_request(struct zram *zram, struct bio *bio)
 	u64 start, end, bound;
 
 	/* unaligned request */
-	if (unlikely(bio->bi_sector &
-		     (ZRAM_SECTOR_PER_LOGICAL_BLOCK - 1)))
+	if (unlikely(bio->bi_sector & (ZRAM_SECTOR_PER_LOGICAL_BLOCK - 1)))
 		return 0;
 	if (unlikely(bio->bi_size & (ZRAM_LOGICAL_BLOCK_SIZE - 1)))
 		return 0;
@@ -442,6 +441,7 @@ static int zram_decompress_page(struct zram *zram, char *mem, u32 index)
 		ret = zcomp_decompress(zram->comp, cmem, size, mem);
 	zs_unmap_object(meta->mem_pool, handle);
 	bit_spin_unlock(ZRAM_ACCESS, &meta->table[index].value);
+
 
 	/* Should NEVER happen. Return bio error if it does. */
 	if (unlikely(ret)) {
@@ -857,8 +857,7 @@ static void __zram_make_request(struct zram *zram, struct bio *bio)
 	struct bio_vec *bvec;
 
 	index = bio->bi_sector >> SECTORS_PER_PAGE_SHIFT;
-	offset = (bio->bi_sector &
-		  (SECTORS_PER_PAGE - 1)) << SECTOR_SHIFT;
+	offset = (bio->bi_sector & (SECTORS_PER_PAGE - 1)) << SECTOR_SHIFT;
 
 	if (unlikely(bio->bi_rw & REQ_DISCARD)) {
 		zram_bio_discard(zram, index, offset, bio);
