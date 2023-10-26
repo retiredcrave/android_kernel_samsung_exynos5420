@@ -182,11 +182,8 @@ static int lowmem_shrink(struct shrinker *s, struct shrink_control *sc)
 	other_file = global_page_state(NR_FILE_PAGES) -
 						global_page_state(NR_SHMEM) + zcache_pages() -
 						global_page_state(NR_UNEVICTABLE) -
- 						total_swapcache_pages;
+ 						total_swapcache_pages();
 	reclaim_state = current->reclaim_state;
-#if defined(CONFIG_ZSWAP)
-	other_file -= total_swapcache_pages();
-#endif
 
 	if (lowmem_adj_size < array_size)
 		array_size = lowmem_adj_size;
