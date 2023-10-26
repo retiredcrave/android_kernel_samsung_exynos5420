@@ -1034,7 +1034,7 @@ static void zswap_frontswap_init(unsigned type)
 	tree = kzalloc(sizeof(struct zswap_tree), GFP_NOWAIT);
 	if (!tree)
 		goto err;
-	tree->pool = zs_create_pool(GFP_NOWAIT);
+	tree->pool = zs_create_pool("zwap", GFP_NOWAIT);
 	if (!tree->pool)
 		goto freetree;
 	tree->rbroot = RB_ROOT;
