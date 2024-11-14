@@ -82,6 +82,15 @@ CONFIG_RCU_FANOUT=32
 # CONFIG_TREE_RCU_TRACE is not set
 # CONFIG_RCU_BOOST is not set
 # CONFIG_IKCONFIG is not set
+
+# needed for
+# system_server: Could not open /proc/config.gz
+# signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+# Abort message: 'Check failed: result == OK Kernel configs could not be fetched. b/51092221'
+
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+
 CONFIG_LOG_BUF_SHIFT=17
 CONFIG_CGROUPS=y
 CONFIG_CGROUP_DEBUG=y
